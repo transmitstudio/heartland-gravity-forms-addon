@@ -1280,7 +1280,7 @@ class GFSecureSubmit
      *
      * @return HpsCardHolder|HpsAddress
      */
-    protected function buildCardHolder($feed, $submission_data, $entry) {
+    private function buildCardHolder($feed, $submission_data, $entry) {
         $firstName = '';
         $lastName = '';
 
@@ -1307,7 +1307,7 @@ class GFSecureSubmit
      *
      * @return HpsCheckHolder|HpsAddress
      */
-    protected function buildCheckHolder($feed, $submission_data, $entry) {
+    private function buildCheckHolder($feed, $submission_data, $entry) {
 
         $checkHolder = new HpsCheckHolder();
         $checkHolder->address = $this->buildAddress($feed, $entry);
@@ -1321,7 +1321,7 @@ class GFSecureSubmit
      *
      * @return \HpsAddress
      */
-    protected function buildAddress($feed, $entry)
+    private function buildAddress($feed, $entry)
     {
         $address = new HpsAddress();
         $meta = rgar($feed, 'meta');
@@ -1641,8 +1641,6 @@ class GFSecureSubmit
 		$validationResult['is_valid']         = false;
         return parent::get_validation_result($validationResult, $authorizationResult);
 	}
-
-
     // # HPS SUBSCRIPTION FUNCTIONS ---------------------------------------------------------------------------------------
 
     /**
@@ -1781,7 +1779,6 @@ class GFSecureSubmit
 
                 } else {
 
-                    // TODO: create payment method
                     $this->log_debug(__METHOD__ . '(): Create payment method.');
                     $paymentMethod = $this->createPaymentMethod($submission_data, $payPlanCustomer);
                     /** @var HpsPayPlanPaymentMethod $payPlanPaymentMethod */
@@ -1859,7 +1856,6 @@ class GFSecureSubmit
                     }
                 }
 
-
             } catch (\Exception $e) {
 
                 // Return authorization error.
@@ -1881,7 +1877,6 @@ class GFSecureSubmit
     }
     // # HPS HELPER FUNCTIONS ---------------------------------------------------------------------------------------
 
-
     /**
      * Retrieve a specific customer from HPS.
      *
@@ -1899,7 +1894,7 @@ class GFSecureSubmit
      * @return bool|HpsPayPlanPaymentMethod Contains customer data if available. Otherwise, false.
      *
      */
-    protected function createPaymentMethod($submission_data, $customer)
+    private function createPaymentMethod($submission_data, $customer)
     {
         $isACH = null !== rgar($submission_data, 'ach_number');
         $acct = rgar($submission_data, 'ach_number'
@@ -1953,7 +1948,7 @@ class GFSecureSubmit
      *
      * @return HpsPayPlanCustomer The HPS customer object.
      */
-    protected function create_customer($feed, $submission_data, $entry)
+    private function create_customer($feed, $submission_data, $entry)
     {
 
         /** @var HpsCardHolder|HpsAddress $cardHolder */
@@ -1981,7 +1976,6 @@ class GFSecureSubmit
 
         return $customer;
     }
-
 
     /**
      * Create and return a HPS plan with the specified properties.
@@ -2045,6 +2039,7 @@ class GFSecureSubmit
 
         return $schedule;
     }
+
     /**
      * @param string $id
      *
@@ -2056,6 +2051,7 @@ class GFSecureSubmit
 
         return sprintf($identifierBase, date('Ymd'), $id);
     }
+
     /**
      * @param string $key
      *
@@ -2073,6 +2069,7 @@ class GFSecureSubmit
 
         return $config;
     }
+
     /**
      * @param string $key
      *
@@ -2087,6 +2084,7 @@ class GFSecureSubmit
 
         return $service;
     }
+
     /** Takes subscription billing cycle and returns a valid payplan cycle
      *
      * @used-by \GFSecureSubmit::create_plan
@@ -2098,7 +2096,7 @@ class GFSecureSubmit
      * @return null|string
      * @throws \HpsArgumentException
      */
-    private function validPayPlanCycle( $feed){
+    private function validPayPlanCycle($feed){
         $this->log_debug( __METHOD__ . '(): Plan to be created => ' . print_r( $feed, 1 ) );
         switch ($feed['meta']['billingCycle_unit']) {
             case '1':
@@ -2132,6 +2130,7 @@ class GFSecureSubmit
         return $cycle;
 
     }
+
     /**
      * @param $feed
      *
