@@ -1744,6 +1744,7 @@ class GFSecureSubmit
     public function subscribe($feed, $submission_data, $form, $entry)
     {
 
+        /** @var array $subscribResult */
         // Include HPS API library.
         $this->includeSecureSubmitSDK();
         $userError = 'Your subscription could not be created. Please try again or contact customer service. ';
@@ -1752,8 +1753,6 @@ class GFSecureSubmit
         if ($this->getSecureSubmitJsError()) {
             $this->log_debug(__METHOD__ . '(): Tokenization error: ' . $this->getSecureSubmitJsError());
             $subscribResult = $this->authorization_error($userError . $this->getSecureSubmitJsError());
-
-            return $this->authorization_error($this->getSecureSubmitJsError());
         } else {
             // Prepare payment amount and trial period data.
             $payment_amount = HpsInputValidation::checkAmount(rgar($submission_data, 'payment_amount'));
@@ -1823,7 +1822,7 @@ class GFSecureSubmit
                                     $response = $creditService
                                         ->recurring($single_payment_amount)
                                         ->withPaymentMethodKey($paymentMethod->paymentMethodKey)
-                                        ->withSchedule($plan->paymentMethodKey)
+                                        ->withSchedule($planSchedule)
                                         ->execute();
 
                                     if (!($response->transactionId > 0 && null !== $response->authorizationCode)) {
@@ -1917,9 +1916,7 @@ class GFSecureSubmit
                 $accountTypeOptions = array(1 => HpsAccountType::CHECKING, HpsAccountType::SAVINGS);
                 $checkTypeOptions = array(1 => HpsCheckType::PERSONAL, HpsCheckType::BUSINESS);
                 $paymentMethod->paymentMethodType = HpsPayPlanPaymentMethodType::ACH;
-                // todo: create a method to get this instead of hard coded
                 $paymentMethod->achType = rgar($accountTypeOptions, rgar($submission_data, GF_Field_HPSach::HPS_ACH_TYPE_FIELD_NAME));
-                // todo: create a method to get this instead of hard coded
                 $paymentMethod->accountType = rgar($checkTypeOptions, rgar($submission_data, GF_Field_HPSach::HPS_ACH_CHECK_FIELD_NAME));
                 $paymentMethod->routingNumber = rgar($submission_data, GF_Field_HPSach::HPS_ACH_ROUTING_FIELD_NAME);
                 $paymentMethod->accountNumber = $acct;
@@ -1935,12 +1932,7 @@ class GFSecureSubmit
 
         return $paymentMethod;
     }
-    private function getACHType($submission_data){
 
-    }
-    private function getAccountType($submission_data){
-
-    }
     /**
      * Create and return a HPS customer with the specified properties.
      *
