@@ -1344,7 +1344,7 @@ class GFSecureSubmit
         $address->city = rgar($meta, 'billingInformation_city');
         $address->state = rgar($meta, 'billingInformation_state');
         $address->zip = rgar($meta, 'billingInformation_zip');
-        $address->country = 'USA';
+        $address->country = rgar($meta, 'billingInformation_country', 'USA');;
 
         return $address;
     }
