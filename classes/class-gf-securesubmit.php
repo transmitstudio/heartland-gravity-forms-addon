@@ -1774,15 +1774,9 @@ class GFSecureSubmit
                                 if (null !== $trial_period_days) {
 
                                     $this->log_debug(__METHOD__ . '(): Processing one time setup fee');
-                                    $creditService = new HpsFluentCreditService($this->getHpsServicesConfig($this->getSecretApiKey($feed)));
                                     /** @var HpsAuthorization $response */
                                     /** @noinspection PhpParamsInspection */
-                                    $response = $creditService
-                                        ->recurring($payment_amount*100) // amounts always in pennies
-                                        //->recurring(1000)
-                                        ->withPaymentMethodKey($payPlanPaymentMethod->paymentMethodKey)
-                                        ->withSchedule($planSchedule->scheduleKey)
-                                        ->execute();
+                                    $response = $this->processRecurring($payment_amount,$feed,$payPlanPaymentMethod,$planSchedule);
 
                                     if (!($response->transactionId > 0 && null !== $response->authorizationCode)) {
 
@@ -1803,15 +1797,9 @@ class GFSecureSubmit
                                 if ($single_payment_amount) {
 
                                     $this->log_debug(__METHOD__ . '(): Processing one time setup fee');
-                                    $creditService = new HpsFluentCreditService($this->getHpsServicesConfig($this->getSecretApiKey($feed)));
                                     /** @var HpsAuthorization $response */
                                     /** @noinspection PhpParamsInspection */
-                                    $response = $creditService
-                                        ->recurring($single_payment_amount*100)
-                                        //->recurring(1000)
-                                        ->withPaymentMethodKey($payPlanPaymentMethod->paymentMethodKey)
-                                        ->withSchedule($planSchedule->scheduleKey)
-                                        ->execute();
+                                    $response = $this->processRecurring($single_payment_amount,$feed,$payPlanPaymentMethod,$planSchedule);
 
                                     if (!($response->transactionId > 0 && null !== $response->authorizationCode)) {
 
@@ -1863,6 +1851,17 @@ class GFSecureSubmit
     }
     // # HPS HELPER FUNCTIONS ---------------------------------------------------------------------------------------
 
+    private function processRecurring($payment_amount,$feed,$payPlanPaymentMethod,$planSchedule){
+        static $creditService = null;
+        if (null === $creditService){
+            $creditService = new HpsFluentCreditService($this->getHpsServicesConfig($this->getSecretApiKey($feed)));
+        }
+        return $creditService
+            ->recurring($payment_amount*100) // amounts always in pennies
+            ->withPaymentMethodKey($payPlanPaymentMethod->paymentMethodKey)
+            ->withSchedule($planSchedule->scheduleKey)
+            ->execute();
+    }
     /**
      * Create and return a HPS customer with the specified properties.
      *
