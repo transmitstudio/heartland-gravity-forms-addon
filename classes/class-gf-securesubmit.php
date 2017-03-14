@@ -992,6 +992,16 @@ class GFSecureSubmit
         return empty( $fields ) ? false : $fields[0];
     }
     /**
+     * @param $form
+     *
+     * @return bool|\GF_Field
+     */
+    private function get_address_card_field($feed){
+        $form = GFAPI::get_form($feed['form_id']);
+        $fields = GFAPI::get_fields_by_type( $form, array( 'address' ) );
+        return empty( $fields ) ? false : $fields[0];
+    }
+    /**
      * @param $feed
      * @param $form
      * @param $entry
@@ -1339,12 +1349,20 @@ class GFSecureSubmit
     private function buildAddress($feed, $entry)
     {
         $address = new HpsAddress();
-        $meta = rgar($feed, 'meta');
-        $address->address = rgar($meta, 'billingInformation_address');
-        $address->city = rgar($meta, 'billingInformation_city');
-        $address->state = rgar($meta, 'billingInformation_state');
-        $address->zip = rgar($meta, 'billingInformation_zip');
-        $address->country = rgar($meta, 'billingInformation_country', 'USA');;
+        $meta = $this->get_address_card_field($feed);
+        //$meta->get
+        $address->address = rgar($entry, $meta->id . '.1');
+        $address->city = rgar($entry, $meta->id . '.3');
+        $address->state = rgar($entry, $meta->id . '.4');
+        $address->zip = rgar($entry, $meta->id . '.5');
+        //'United States' 'Canada'
+        $address->country = rgar($entry, $meta->id . '.6', 'USA');;
+        if ('United States' === $address->country){
+            $address->country = 'USA';
+        }
+        if ('Canada' === $address->country){
+            $address->country = 'CAN';
+        }
 
         return $address;
     }
@@ -1832,7 +1850,7 @@ class GFSecureSubmit
         } catch (\Exception $e) {
 
             // Return authorization error.
-            $subscribResult = $this->authorization_error($userError . $e->getMessage());
+            return $this->authorization_error($userError . $e->getMessage());
 
         }
 
