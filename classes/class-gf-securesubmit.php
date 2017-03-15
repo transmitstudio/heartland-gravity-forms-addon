@@ -1355,14 +1355,6 @@ class GFSecureSubmit
         $address->city = rgar($entry, $meta->id . '.3');
         $address->state = rgar($entry, $meta->id . '.4');
         $address->zip = rgar($entry, $meta->id . '.5');
-        //'United States' 'Canada'
-        $address->country = rgar($entry, $meta->id . '.6', 'USA');;
-        if ('United States' === $address->country){
-            $address->country = 'USA';
-        }
-        if ('Canada' === $address->country){
-            $address->country = 'CAN';
-        }
 
         return $address;
     }
@@ -1830,7 +1822,7 @@ class GFSecureSubmit
 
             $subscribResult = array(
                 'is_success' => true,
-                'subscription_id' => $planSchedule->paymentMethodKey,
+                'subscription_id' => $planSchedule->scheduleKey,
                 'customer_id' => $customer->customerKey,
                 'amount' => $payment_amount,
             ); // array
@@ -1898,6 +1890,17 @@ class GFSecureSubmit
 
         $acctHolder = $this->buildCardHolder($feed, $submission_data, $entry);
 
+        $meta = $this->get_address_card_field($feed);
+        //'United States' 'Canada'
+        $acctHolder->address->country = rgar($entry, $meta->id . '.6', 'USA');;
+        /** @noinspection PhpUndefinedFieldInspection */
+        if ('United States' === $acctHolder->address->country){
+            $acctHolder->address->country = 'USA';
+        }
+        /** @noinspection PhpUndefinedFieldInspection */
+        if ('Canada' === $acctHolder->address->country){
+            $acctHolder->address->country = 'CAN';
+        }
         // Log the customer to be created.
         $this->log_debug(__METHOD__ . '(): Customer meta to be created => ' . print_r($acctHolder, 1));
 
